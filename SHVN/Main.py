@@ -2,7 +2,7 @@
 import torch
 from Teacher import Teacher
 from Model import Model
-from data import load_data,NoisyDataset,split
+from data import load_data,NoisyDataset
 from util import accuracy
 from Student import Student
 
@@ -26,8 +26,8 @@ class Arguments():
 
 args = Arguments()
 
-train_loader = load_data(True,args.batchsize)
-test_loader=load_data(False,args.test_batchsize)
+train_loader = load_data("train",args.batchsize,"SHVN")
+test_loader=load_data("test",args.test_batchsize,"SHVN")
 
 #Declare and train teachers on MNIST training data
 teacher=Teacher(args,Model,n_teachers=args.n_teachers)
@@ -54,10 +54,8 @@ print("Training Student")
 print("\n")
 print("\n")
 
-train,val=split(test_loader,args.batchsize)
-
 student=Student(args,Model())
-N=NoisyDataset(train,teacher.predict)
+N=NoisyDataset(train_loader,teacher.predict)
 student.train(N)
 
 results=[]
@@ -66,7 +64,7 @@ targets=[]
 total=0.0
 correct=0.0
 
-for data,target in val:
+for data,target in test_loader:
     
     predict_lol=student.predict(data)
     correct += float((predict_lol == (target)).sum().item())

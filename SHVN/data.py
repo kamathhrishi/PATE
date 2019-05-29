@@ -2,15 +2,15 @@
 import torch
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
-from torch.utils.data.sampler import SubsetRandomSampler
-import numpy as np
 
-def load_data(train,batch_size):
+def load_data(train,batch_size,name="MNIST"):
     
         """Helper function used to load the train/test data"""
         
+        loader=None
+        if(name=="MNIST"):
             
-        loader = torch.utils.data.DataLoader(
+            loader = torch.utils.data.DataLoader(
                        datasets.MNIST('../data', train=train, download=True,
                        transform=transforms.Compose([
                            transforms.ToTensor(),
@@ -18,32 +18,18 @@ def load_data(train,batch_size):
                        ])),
                        batch_size=batch_size, shuffle=True)
     
+        elif(name=="SHVN"):
+             
+             loader = torch.utils.data.DataLoader(
+                       datasets.SVHN('../data',split=train, download=True,
+                       transform=transforms.Compose([
+                           transforms.ToTensor(),
+                           transforms.Normalize((0.1307,), (0.3081,))
+                       ])),
+                       batch_size=batch_size, shuffle=True)
+             
+        
         return loader
-    
-def split(dataset,batch_size,split=0.2):
-        
-        shuffle_dataset = True
-        random_seed= 42
-
-        # Creating data indices for training and validation splits:
-        dataset_size = len(dataset)
-        indices = list(range(dataset_size))
-        split = int(np.floor(split * dataset_size))
-        if shuffle_dataset :
-               np.random.seed(random_seed)
-               np.random.shuffle(indices)
-        train_indices, val_indices = indices[split:], indices[:split]
-
-        # Creating PT data samplers and loaders:
-        train_sampler = SubsetRandomSampler(train_indices)
-        valid_sampler = SubsetRandomSampler(val_indices)
-
-        train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, 
-                                           sampler=train_sampler)
-        validation_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
-                                                sampler=valid_sampler)
-        
-        return train_loader,validation_loader
     
 class NoisyDataset(Dataset):
     """Face Landmarks dataset."""
@@ -61,7 +47,10 @@ class NoisyDataset(Dataset):
         self.transform = transform
         self.noisy_data=self.process_data()
         
-            
+    def split(self):
+        
+        pass
+        
     def process_data(self):
         
         noisy_data=[]
