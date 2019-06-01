@@ -6,6 +6,7 @@ from data import load_data, NoisyDataset
 from util import accuracy, split
 from Student import Student
 import syft as sy
+from syft.frameworks.torch.differential_privacy import pate
 
 
 class Arguments:
@@ -15,8 +16,8 @@ class Arguments:
 
         self.batchsize = 64
         self.test_batchsize = 10
-        self.epochs = 1
-        self.student_epochs = 1
+        self.epochs = 1000
+        self.student_epochs = 30
         self.lr = 0.01
         self.momentum = 0.5
         self.no_cuda = False
@@ -36,19 +37,24 @@ teacher = Teacher(args, Model, n_teachers=args.n_teachers)
 teacher.train(train_loader)
 
 # Evaluate Teacher accuracy
-targets = []
+teacher_targets = []
 predict = []
 
-teacher_counts=[]
+counts = []
+original_targets = []
+
 
 for data, target in test_loader:
 
-    targets.append(target)
-    predictions,counts=teacher.predict(data)
-    predict.append(predictions)
-    teacher_counts.append(counts)
+    output = teacher.predict(data)
 
-print("Accuracy: ", accuracy(torch.tensor(predict), targets))
+    arr_target = []
+    teacher_targets.append(target)
+    original_targets.append(target)
+    predict.append(output["predictions"])
+    counts.append(output["model_counts"])
+
+print("Accuracy: ", accuracy(torch.tensor(predict), teacher_targets))
 
 print("\n")
 print("\n")
@@ -78,3 +84,9 @@ for data, target in val:
     total += float(target.size(0))
 
 print("Private Baseline: ", (correct / total) * 100)
+
+counts_lol = torch.stack(counts).contiguous().view(50, 10000)
+predict_lol = torch.tensor(predict).view(10000)
+
+data_dep_eps, data_ind_eps = teacher.analyze(counts_lol, predict_lol, moments=20)
+print("Epsilon: ", teacher.analyze(counts_lol, predict_lol))
