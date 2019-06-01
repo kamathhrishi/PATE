@@ -1,6 +1,7 @@
 # PATE Example
 
 The scripts in the folder allow you to train a MNIST model using PATE diffrential privacy framework.
+While running this example would give you an accurate implementation of a PATE implementation. An accurate analysis of DP guarantees is still an work in progress.
 
 ```
 $ python Main.py
