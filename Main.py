@@ -16,7 +16,7 @@ class Arguments:
 
         self.batchsize = 64
         self.test_batchsize = 10
-        self.epochs = 1000
+        self.epochs = 10
         self.student_epochs = 30
         self.lr = 0.01
         self.momentum = 0.5
