@@ -3,6 +3,10 @@
 The scripts in the folder allow you to train a MNIST model using PATE diffrential privacy framework.
 While running this example would give you an accurate implementation of a PATE implementation. An accurate analysis of DP guarantees is still an work in progress.
 
+[Not maintaining this anymore] 
+
+Sorry, I wasn't a very good coder when I wrote this. 
+
 <h2>Requirements:</h2>
 
 <ul>
